@@ -253,24 +253,25 @@
   }
 
   function getNeighborCoords(board, row, col) {
-    const isEvenRow = row % 2 === 0;
+    const isOddCol = col % 2 === 1;
 
-    const deltas = isEvenRow
+    // Flat-top hexes, odd columns shifted downward
+    const deltas = isOddCol
       ? [
-          [-1, -1],
-          [-1, 0],
-          [0, -1],
-          [0, 1],
-          [1, -1],
-          [1, 0]
+          [-1, 0],  // up
+          [1, 0],   // down
+          [0, -1],  // upper-left
+          [1, -1],  // lower-left
+          [0, 1],   // upper-right
+          [1, 1]    // lower-right
         ]
       : [
-          [-1, 0],
-          [-1, 1],
-          [0, -1],
-          [0, 1],
-          [1, 0],
-          [1, 1]
+          [-1, 0],  // up
+          [1, 0],   // down
+          [-1, -1], // upper-left
+          [0, -1],  // lower-left
+          [-1, 1],  // upper-right
+          [0, 1]    // lower-right
         ];
 
     const coords = [];
@@ -290,7 +291,7 @@
     }
 
     return coords;
-  }
+}
 
   function revealTile(runtime, row, col) {
     if (runtime.completed) return { changed: false, tile: null };
