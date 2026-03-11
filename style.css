@@ -284,10 +284,16 @@ button:disabled,
   border-color: var(--finish-outline);
 }
 
-.hex.hidden.start-edge,
-.hex.hidden.finish-edge {
+.hex.tile-hidden {
+  background: var(--tile-hidden);
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.hex.tile-hidden.start-edge,
+.hex.tile-hidden.finish-edge {
   color: rgba(255, 255, 255, 0.72);
 }
+
 
 .hex.revealed {
   background: var(--tile-safe);
