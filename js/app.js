@@ -435,7 +435,7 @@
 
     const title =
       state.currentMode === "practice"
-        ? "Breakaway Practice"
+        ? "Breakaway: Pathfinder Practice"
         : `Breakaway #${String(def.puzzleId).padStart(3, "0")}`;
 
     const rows = runtime.board.map((row) =>
