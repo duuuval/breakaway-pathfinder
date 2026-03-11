@@ -34,9 +34,13 @@
   };
 
   function init() {
+    console.log("Breakaway Pathfinder init starting");
+    
     bindEvents();
     buildArchiveList();
     loadInitialView();
+
+    console.log("State after init:",state);
   }
 
   function bindEvents() {
