@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Breakaway Web Puzzle</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <h1>Breakaway Web Puzzle</h1>
+          <p class="subtitle">
+            Daily hex-grid deduction puzzle. Best played in landscape.
+          </p>
+        </div>
+
+        <div class="topbar-right">
+          <button id="reset-local-data-btn" class="ghost-btn">
+            Reset Local Data
+          </button>
+        </div>
+      </header>
+
+      <nav class="mode-nav">
+        <button id="daily-mode-btn" class="mode-btn active">Daily Puzzle</button>
+        <button id="practice-mode-btn" class="mode-btn">Practice Mode</button>
+        <button id="archive-mode-btn" class="mode-btn">Archive</button>
+      </nav>
+
+      <section class="status-panel">
+        <div class="status-block">
+          <span class="status-label">Puzzle</span>
+          <span id="puzzle-title" class="status-value">Breakaway #001</span>
+        </div>
+        <div class="status-block">
+          <span class="status-label">Score</span>
+          <span id="score-value" class="status-value">0</span>
+        </div>
+        <div class="status-block">
+          <span class="status-label">Reveals</span>
+          <span id="reveals-value" class="status-value">0</span>
+        </div>
+        <div class="status-block">
+          <span class="status-label">Deadlinks</span>
+          <span id="deadlinks-value" class="status-value">0</span>
+        </div>
+        <div class="status-block">
+          <span class="status-label">Local Record</span>
+          <span id="record-value" class="status-value">—</span>
+        </div>
+      </section>
+
+      <section id="archive-panel" class="panel hidden">
+        <div class="panel-header">
+          <h2>Archive</h2>
+          <p>Practice previous featured puzzles locally.</p>
+        </div>
+        <div id="archive-list" class="archive-list"></div>
+      </section>
+
+      <section class="panel board-panel">
+        <div class="board-header">
+          <div class="board-header-left">
+            <h2 id="board-heading">Daily Puzzle</h2>
+            <p id="board-subheading">
+              Reveal tiles to find the safest route across the track.
+            </p>
+          </div>
+          <div class="board-actions">
+            <button id="restart-puzzle-btn">Restart Puzzle</button>
+            <button id="new-practice-btn" class="hidden">New Practice Puzzle</button>
+            <button id="share-result-btn" disabled>Share Result</button>
+          </div>
+        </div>
+
+        <div class="board-legend">
+          <div><span class="legend-chip start-chip"></span> Start</div>
+          <div><span class="legend-chip hidden-chip"></span> Hidden</div>
+          <div><span class="legend-chip revealed-chip"></span> Safe</div>
+          <div><span class="legend-chip deadlink-chip"></span> Deadlink</div>
+          <div><span class="legend-chip finish-chip"></span> Finish</div>
+        </div>
+
+        <div class="board-wrap">
+          <div class="board-label-row">
+            <span>START</span>
+            <span>FINISH</span>
+          </div>
+          <div id="board" class="board"></div>
+        </div>
+
+        <div class="message-panel">
+          <p id="message-line">
+            Reveal safe tiles and reach any finish tile with the lowest possible score.
+          </p>
+          <p id="result-line"></p>
+        </div>
+      </section>
+    </div>
+
+    <script src="./js/puzzles.js"></script>
+    <script src="./js/storage.js"></script>
+    <script src="./js/engine.js"></script>
+    <script src="./js/app.js"></script>
+  </body>
+</html>
