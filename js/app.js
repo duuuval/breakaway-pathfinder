@@ -342,48 +342,67 @@
   }
 
   function renderBoard() {
-    boardEl.innerHTML = "";
+  boardEl.innerHTML = "";
 
-    const runtime = state.runtime;
-    if (!runtime) return;
+  const runtime = state.runtime;
+  if (!runtime) return;
 
-    const pathIndexByKey = {};
-    runtime.optimalPath.forEach((pos, index) => {
-      pathIndexByKey[EngineAPI.keyFor(pos.row, pos.col)] = index;
-    });
+  const TILE_WIDTH = 56;
+  const TILE_HEIGHT = 48;
+  const COL_STEP = 42;
+  const ROW_STEP = 48;
+  const COL_OFFSET = 24;
 
-    runtime.board.forEach((row, rowIndex) => {
-      const rowEl = document.createElement("div");
-      rowEl.className = "hex-row";
+  const boardWidth = (runtime.width - 1) * COL_STEP + TILE_WIDTH;
+  const boardHeight = runtime.height * ROW_STEP + COL_OFFSET;
 
-      if (rowIndex % 2 === 1) {
-        rowEl.classList.add("offset");
+  boardEl.style.width = `${boardWidth}px`;
+  boardEl.style.height = `${boardHeight}px`;
+  boardEl.style.position = "relative";
+
+  const pathIndexByKey = {};
+  runtime.optimalPath.forEach((pos, index) => {
+    pathIndexByKey[EngineAPI.keyFor(pos.row, pos.col)] = index;
+  });
+
+  runtime.board.forEach((row) => {
+    row.forEach((tile) => {
+      const tileEl = document.createElement("button");
+      const tileKey = EngineAPI.keyFor(tile.row, tile.col);
+      const reachable = !runtime.completed && EngineAPI.isTileReachable(runtime, tile.row, tile.col);
+
+      tileEl.className = buildTileClass(tile, tileKey, pathIndexByKey);
+      tileEl.type = "button";
+      tileEl.dataset.row = String(tile.row);
+      tileEl.dataset.col = String(tile.col);
+      tileEl.textContent = getTileText(tile, tileKey);
+
+      const left = tile.col * COL_STEP;
+      const top = tile.row * ROW_STEP + (tile.col % 2 === 1 ? COL_OFFSET : 0);
+
+      tileEl.style.left = `${left}px`;
+      tileEl.style.top = `${top}px`;
+
+      if (!tile.revealed && !runtime.completed) {
+        if (reachable) {
+          tileEl.classList.add("reachable");
+          tileEl.addEventListener("click", () => handleTileClick(tile.row, tile.col));
+        } else {
+          tileEl.classList.add("unreachable");
+          tileEl.disabled = true;
+        }
+      } else {
+        tileEl.disabled = true;
       }
 
-      row.forEach((tile) => {
-        const tileEl = document.createElement("button");
+      if (state.solutionVisible && runtime.optimalPathSet.has(tileKey)) {
+        tileEl.style.animationDelay = `${pathIndexByKey[tileKey] * 60}ms`;
+      }
 
-        tileEl.className = "hex tile-hidden";
-
-        if (tile.col === 0) {
-          tileEl.classList.add("start-edge");
-          tileEl.textContent = "S";
-        }
-
-       if (tile.col === runtime.width - 1) {
-         tileEl.classList.add("finish-edge");
-          tileEl.textContent = "F";
-        }
-
-        tileEl.addEventListener("click", () => handleTileClick(tile.row, tile.col));
-
-        rowEl.appendChild(tileEl);
-      });
-
-  boardEl.appendChild(rowEl);
-});
-
-  }
+      boardEl.appendChild(tileEl);
+    });
+  });
+}
 
   function buildTileClass(tile, tileKey, pathIndexByKey) {
     const classes = ["hex"];
