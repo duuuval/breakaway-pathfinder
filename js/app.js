@@ -354,33 +354,35 @@
 
     runtime.board.forEach((row, rowIndex) => {
       const rowEl = document.createElement("div");
-      rowEl.className = `hex-row${rowIndex % 2 === 1 ? " offset" : ""}`;
+      rowEl.className = "hex-row";
+
+      if (rowIndex % 2 === 1) {
+        rowEl.classList.add("offset");
+      }
 
       row.forEach((tile) => {
         const tileEl = document.createElement("button");
-        const tileKey = EngineAPI.keyFor(tile.row, tile.col);
 
-        tileEl.className = buildTileClass(tile, tileKey, pathIndexByKey);
-        tileEl.type = "button";
-        tileEl.dataset.row = String(tile.row);
-        tileEl.dataset.col = String(tile.col);
-        tileEl.textContent = getTileText(tile, tileKey);
+        tileEl.className = "hex hidden";
 
-        if (!runtime.completed) {
-          tileEl.addEventListener("click", () => handleTileClick(tile.row, tile.col));
-        } else {
-          tileEl.disabled = true;
+        if (tile.col === 0) {
+          tileEl.classList.add("start-edge");
+          tileEl.textContent = "S";
         }
 
-        if (state.solutionVisible && runtime.optimalPathSet.has(tileKey)) {
-          tileEl.style.animationDelay = `${pathIndexByKey[tileKey] * 60}ms`;
+       if (tile.col === runtime.width - 1) {
+         tileEl.classList.add("finish-edge");
+          tileEl.textContent = "F";
         }
+
+        tileEl.addEventListener("click", () => handleTileClick(tile.row, tile.col));
 
         rowEl.appendChild(tileEl);
       });
 
-      boardEl.appendChild(rowEl);
-    });
+  boardEl.appendChild(rowEl);
+});
+
   }
 
   function buildTileClass(tile, tileKey, pathIndexByKey) {
