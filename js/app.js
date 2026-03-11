@@ -363,7 +363,7 @@
       row.forEach((tile) => {
         const tileEl = document.createElement("button");
 
-        tileEl.className = "hex hidden";
+        tileEl.className = "hex tile-hidden";
 
         if (tile.col === 0) {
           tileEl.classList.add("start-edge");
@@ -392,7 +392,7 @@
     if (tile.isFinish) classes.push("finish-edge");
 
     if (!tile.revealed) {
-      classes.push("hidden");
+      classes.push("tile-hidden");
     } else if (tile.wasDeadlinkHit) {
       classes.push("deadlink-hit");
     } else if (tile.isFinish) {
