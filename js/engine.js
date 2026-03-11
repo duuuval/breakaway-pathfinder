@@ -332,10 +332,27 @@
     return runtime;
   }
 
+  function isTileReachable(runtime, row, col) {
+    const tile = runtime.board[row][col];
+
+    // Already revealed tiles are not clickable again
+    if (tile.revealed) return false;
+
+    // First move: any start tile is allowed
+    if (runtime.revealedOrder.length === 0) {
+      return tile.isStart;
+    }
+
+    // After first move: any tile adjacent to any revealed tile is reachable
+    const neighbors = getNeighbors(runtime.board, row, col);
+    return neighbors.some((neighbor) => neighbor.revealed);
+  }
+  
   window.EngineAPI = {
     keyFor,
     createRuntimeFromDefinition,
     revealTile,
-    replayRun
+    replayRun,
+    isTileReachable
   };
 })();
