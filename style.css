@@ -273,7 +273,7 @@ button:disabled,
 
 .hex:hover:not(:disabled) {
   transform: translateY(-1px);
-  filter: brightness(1.06);
+  filter: brightness(1.08);
 }
 
 .hex.start-edge {
@@ -377,7 +377,23 @@ button:disabled,
   .hex-row.offset {
     margin-left: 24px;
   }
+   
+  .hex.reachable {
+    cursor: pointer;
+    box-shadow: 0 0 0 2px rgba(24, 116, 158, 0.22), 0 2px 6px rgba(0, 0, 0, 0.28);
+  }
 
+ .hex.unreachable {
+   opacity: 0.38;
+   filter: saturate(0.75);
+   cursor: not-allowed;
+  }
+
+ .hex.unreachable.start-edge,
+ .hex.unreachable.finish-edge {
+   opacity: 0.55;
+  }
+  
   .board-label-row {
     font-size: 0.9rem;
   }
