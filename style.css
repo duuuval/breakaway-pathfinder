@@ -1,0 +1,378 @@
+:root {
+  --bg: #1a1c20;
+  --panel: #242933;
+  --panel-2: #2f3542;
+  --text: #e7edf7;
+  --muted: #9aa3b2;
+  --border: #3a4150;
+
+  --tile-hidden: #2a2f38; /* dark asphalt */
+  --tile-safe: #dbdbdb;   /* light gray safe */
+  --deadlink: #ea8847;    /* deadlink orange */
+  --boost: #18749e;       /* butterbeach blue - future use */
+  --accent-pink: #a8488f;
+  --accent-coral: #d27b77;
+
+  --start-outline: #18749e;
+  --finish-outline: #d27b77;
+  --path-glow: rgba(168, 72, 143, 0.45);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: linear-gradient(180deg, #15181d 0%, var(--bg) 100%);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  padding: 16px;
+}
+
+.app-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+h1,
+h2 {
+  margin: 0;
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.mode-nav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.mode-btn,
+button {
+  appearance: none;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: var(--boost);
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mode-btn.active {
+  background: var(--accent-pink);
+}
+
+button:hover:not(:disabled),
+.mode-btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+button:disabled,
+.mode-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ghost-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.panel,
+.status-panel {
+  background: rgba(36, 41, 51, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+}
+
+.status-panel {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(100px, 1fr));
+  gap: 10px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+
+.status-block {
+  display: grid;
+  gap: 4px;
+}
+
+.status-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.status-value {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.panel {
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.panel-header {
+  margin-bottom: 10px;
+}
+
+.panel-header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.archive-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.archive-item-btn {
+  background: var(--panel-2);
+}
+
+.board-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.board-subheading {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.board-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.board-legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+.legend-chip {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  border-radius: 4px;
+  vertical-align: middle;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.hidden-chip {
+  background: var(--tile-hidden);
+}
+
+.revealed-chip {
+  background: var(--tile-safe);
+}
+
+.deadlink-chip {
+  background: var(--deadlink);
+}
+
+.start-chip {
+  background: var(--tile-hidden);
+  border-color: var(--start-outline);
+}
+
+.finish-chip {
+  background: var(--tile-hidden);
+  border-color: var(--finish-outline);
+}
+
+.board-wrap {
+  overflow-x: auto;
+}
+
+.board-label-row {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-weight: 800;
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+
+.board {
+  width: max-content;
+  min-height: 280px;
+  margin: 0 auto;
+  padding: 6px 0 10px;
+}
+
+.hex-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: -8px;
+}
+
+.hex-row.offset {
+  margin-left: 26px;
+}
+
+.hex {
+  width: 46px;
+  height: 52px;
+  clip-path: polygon(
+    25% 6%,
+    75% 6%,
+    100% 50%,
+    75% 94%,
+    25% 94%,
+    0% 50%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border);
+  background: var(--tile-hidden);
+  color: transparent;
+  font-weight: 800;
+  font-size: 0.92rem;
+  user-select: none;
+  cursor: pointer;
+  transition: transform 0.08s ease, filter 0.12s ease, background 0.12s ease;
+}
+
+.hex:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.hex.start-edge {
+  border-color: var(--start-outline);
+}
+
+.hex.finish-edge {
+  border-color: var(--finish-outline);
+}
+
+.hex.hidden.start-edge,
+.hex.hidden.finish-edge {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.hex.revealed {
+  background: var(--tile-safe);
+  color: #111827;
+}
+
+.hex.deadlink-hit {
+  background: var(--deadlink);
+  color: white;
+  box-shadow: 0 0 10px rgba(234, 136, 71, 0.55);
+}
+
+.hex.finish-revealed {
+  background: var(--tile-safe);
+  color: #111827;
+}
+
+.hex.safe-zero {
+  color: #6b7280;
+}
+
+.hex.n1 { color: #2563eb; }
+.hex.n2 { color: #16a34a; }
+.hex.n3 { color: #dc2626; }
+.hex.n4 { color: #7c3aed; }
+.hex.n5 { color: #c2410c; }
+.hex.n6 { color: #0f766e; }
+
+.hex.solution-path {
+  box-shadow: 0 0 0 3px var(--path-glow) inset;
+  animation: pulsePath 0.5s ease both;
+}
+
+@keyframes pulsePath {
+  from {
+    transform: scale(0.92);
+    filter: brightness(0.95);
+  }
+  to {
+    transform: scale(1);
+    filter: brightness(1.08);
+  }
+}
+
+.message-panel {
+  margin-top: 14px;
+}
+
+#message-line,
+#result-line {
+  margin: 0;
+}
+
+#result-line {
+  margin-top: 8px;
+  color: var(--accent-coral);
+  font-weight: 700;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .status-panel {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  body {
+    padding: 10px;
+  }
+
+  .hex {
+    width: 42px;
+    height: 48px;
+    font-size: 0.86rem;
+  }
+
+  .hex-row.offset {
+    margin-left: 24px;
+  }
+
+  .board-label-row {
+    font-size: 0.9rem;
+  }
+}
