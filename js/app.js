@@ -34,34 +34,21 @@
   };
 
   function init() {
-    console.log("Breakaway Pathfinder init starting");
-    
     bindEvents();
     buildArchiveList();
     loadInitialView();
-
-    console.log("State after init:",state);
   }
 
   function bindEvents() {
-    dailyModeBtn.addEventListener("click", () => {
-      switchView("daily");
-    });
+    dailyModeBtn.addEventListener("click", () => switchView("daily"));
+    practiceModeBtn.addEventListener("click", () => switchView("practice"));
+    archiveModeBtn.addEventListener("click", () => switchView("archive"));
 
-    practiceModeBtn.addEventListener("click", () => {
-      switchView("practice");
-    });
-
-    archiveModeBtn.addEventListener("click", () => {
-      switchView("archive");
-    });
-
-    restartPuzzleBtn.addEventListener("click", () => {
-      restartCurrentPuzzle();
-    });
+    restartPuzzleBtn.addEventListener("click", () => restartCurrentPuzzle());
 
     newPracticeBtn.addEventListener("click", () => {
       loadPracticePuzzle(true);
+      updateViewUi();
     });
 
     shareResultBtn.addEventListener("click", async () => {
@@ -72,7 +59,7 @@
         await navigator.clipboard.writeText(text);
         resultLineEl.textContent = "Result copied to clipboard.";
       } catch (error) {
-        resultLineEl.textContent = "Could not copy automatically. Long-press and copy manually:";
+        resultLineEl.textContent = "Could not copy automatically.";
         console.log(text);
       }
     });
@@ -181,7 +168,6 @@
     state.solutionVisible = false;
 
     const runKey = getRunKey(definition, mode);
-
     const savedRun = !forceFresh ? appData.runs[runKey] : null;
     const runtime = EngineAPI.createRuntimeFromDefinition(definition);
 
@@ -194,7 +180,6 @@
     }
 
     state.runtime = runtime;
-
     renderAll();
   }
 
@@ -291,12 +276,8 @@
 
     puzzleTitleEl.textContent = PuzzleAPI.formatPuzzleTitle(
       state.currentDefinition,
-      state.currentMode === "daily" ? "daily" : "archive"
+      state.currentMode
     );
-
-    if (state.currentMode === "practice") {
-      puzzleTitleEl.textContent = "Practice Puzzle";
-    }
 
     scoreValueEl.textContent = String(state.runtime.score);
     revealsValueEl.textContent = String(state.runtime.reveals);
@@ -307,19 +288,19 @@
       boardSubheadingEl.textContent = "One featured shared-style puzzle. Lowest score is best.";
       messageLineEl.textContent = state.runtime.completed
         ? "Finish tile revealed. Puzzle complete."
-        : "Reveal tiles to reach any finish tile with the lowest possible score.";
+        : "Choose a start tile, then reveal only touching tiles to push the route forward.";
     } else if (state.currentMode === "practice") {
       boardHeadingEl.textContent = "Practice Mode";
       boardSubheadingEl.textContent = "Random puzzle using the same generator rules.";
       messageLineEl.textContent = state.runtime.completed
         ? "Practice puzzle complete."
-        : "Practice freely. Deadlinks add penalty, but do not end the puzzle.";
+        : "Practice freely. Deadlinks cost points but still extend your route.";
     } else {
       boardHeadingEl.textContent = "Archive";
       boardSubheadingEl.textContent = "Replay previous fixed puzzles locally.";
       messageLineEl.textContent = state.runtime.completed
         ? "Archive puzzle complete."
-        : "Reveal tiles and finish with the lowest possible score.";
+        : "Choose a start tile, then work your way to the finish.";
     }
 
     if (!state.runtime.completed) {
@@ -342,67 +323,60 @@
   }
 
   function renderBoard() {
-  boardEl.innerHTML = "";
+    boardEl.innerHTML = "";
 
-  const runtime = state.runtime;
-  if (!runtime) return;
+    const runtime = state.runtime;
+    if (!runtime) return;
 
-  const TILE_WIDTH = 56;
-  const TILE_HEIGHT = 48;
-  const COL_STEP = 42;
-  const ROW_STEP = 48;
-  const COL_OFFSET = 24;
+    const pathIndexByKey = {};
+    runtime.optimalPath.forEach((pos, index) => {
+      pathIndexByKey[EngineAPI.keyFor(pos.row, pos.col)] = index;
+    });
 
-  const boardWidth = (runtime.width - 1) * COL_STEP + TILE_WIDTH;
-  const boardHeight = runtime.height * ROW_STEP + COL_OFFSET;
+    for (let col = 0; col < runtime.width; col++) {
+      const columnEl = document.createElement("div");
+      columnEl.className = "hex-column";
 
-  boardEl.style.width = `${boardWidth}px`;
-  boardEl.style.height = `${boardHeight}px`;
-  boardEl.style.position = "relative";
+      if (col % 2 === 1) {
+        columnEl.classList.add("offset");
+      }
 
-  const pathIndexByKey = {};
-  runtime.optimalPath.forEach((pos, index) => {
-    pathIndexByKey[EngineAPI.keyFor(pos.row, pos.col)] = index;
-  });
+      for (let row = 0; row < runtime.height; row++) {
+        const tile = runtime.board[row][col];
+        const tileKey = EngineAPI.keyFor(tile.row, tile.col);
+        const reachable =
+          !runtime.completed &&
+          EngineAPI.isTileReachable(runtime, tile.row, tile.col);
 
-  runtime.board.forEach((row) => {
-    row.forEach((tile) => {
-      const tileEl = document.createElement("button");
-      const tileKey = EngineAPI.keyFor(tile.row, tile.col);
-      const reachable = !runtime.completed && EngineAPI.isTileReachable(runtime, tile.row, tile.col);
+        const tileEl = document.createElement("button");
+        tileEl.className = buildTileClass(tile, tileKey, pathIndexByKey);
+        tileEl.type = "button";
+        tileEl.dataset.row = String(tile.row);
+        tileEl.dataset.col = String(tile.col);
+        tileEl.textContent = getTileText(tile, tileKey);
 
-      tileEl.className = buildTileClass(tile, tileKey, pathIndexByKey);
-      tileEl.type = "button";
-      tileEl.dataset.row = String(tile.row);
-      tileEl.dataset.col = String(tile.col);
-      tileEl.textContent = getTileText(tile, tileKey);
-
-      const left = tile.col * COL_STEP;
-      const top = tile.row * ROW_STEP + (tile.col % 2 === 1 ? COL_OFFSET : 0);
-
-      tileEl.style.left = `${left}px`;
-      tileEl.style.top = `${top}px`;
-
-      if (!tile.revealed && !runtime.completed) {
-        if (reachable) {
-          tileEl.classList.add("reachable");
-          tileEl.addEventListener("click", () => handleTileClick(tile.row, tile.col));
+        if (!tile.revealed && !runtime.completed) {
+          if (reachable) {
+            tileEl.classList.add("reachable");
+            tileEl.addEventListener("click", () => handleTileClick(tile.row, tile.col));
+          } else {
+            tileEl.classList.add("unreachable");
+            tileEl.disabled = true;
+          }
         } else {
-          tileEl.classList.add("unreachable");
           tileEl.disabled = true;
         }
-      } else {
-        tileEl.disabled = true;
+
+        if (state.solutionVisible && runtime.optimalPathSet.has(tileKey)) {
+          tileEl.style.animationDelay = `${pathIndexByKey[tileKey] * 60}ms`;
+        }
+
+        columnEl.appendChild(tileEl);
       }
 
-      if (state.solutionVisible && runtime.optimalPathSet.has(tileKey)) {
-        tileEl.style.animationDelay = `${pathIndexByKey[tileKey] * 60}ms`;
-      }
-
-      boardEl.appendChild(tileEl);
-    });
-  });
-}
+      boardEl.appendChild(columnEl);
+    }
+  }
 
   function buildTileClass(tile, tileKey, pathIndexByKey) {
     const classes = ["hex"];
@@ -445,7 +419,7 @@
         return "·";
       }
 
-      return "";
+      return "•";
     }
 
     if (tile.wasDeadlinkHit) return "✕";
@@ -460,8 +434,8 @@
 
     const title =
       state.currentMode === "practice"
-        ? "Breakaway: Pathfinder Practice"
-        : `Breakaway #${String(def.puzzleId).padStart(3, "0")}`;
+        ? "Breakaway Pathfinder Practice"
+        : `Breakaway Pathfinder #${String(def.puzzleId).padStart(3, "0")}`;
 
     const rows = runtime.board.map((row) =>
       row
