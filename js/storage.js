@@ -1,5 +1,5 @@
 (function () {
-  const STORAGE_KEY = "breakaway-web-puzzle-v1";
+  const STORAGE_KEY = "breakaway-pathfinder-v1";
 
   function getDefaultData() {
     return {
@@ -28,7 +28,7 @@
         }
       };
     } catch (error) {
-      console.error("Failed to load local storage:", error);
+      console.error("Failed to load local data:", error);
       return getDefaultData();
     }
   }
