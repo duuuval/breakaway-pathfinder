@@ -1,5 +1,5 @@
 (function () {
-  const BASE_WIDTH = 8;
+  const BASE_WIDTH = 11;
   const BASE_HEIGHT = 6;
   const FEATURED_PUZZLE_ID = 10;
 
