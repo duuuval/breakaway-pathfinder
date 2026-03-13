@@ -358,16 +358,23 @@
         tileEl.appendChild(labelSpan);
 
         if (!tile.revealed && !runtime.completed) {
-          if (reachable) {
-            tileEl.classList.add("reachable");
-            tileEl.addEventListener("click", () => handleTileClick(tile.row, tile.col));
-          } else {
-            tileEl.classList.add("unreachable");
-            tileEl.disabled = true;
-          }
-        } else {
+         if (reachable) {
+          tileEl.classList.add("reachable");
+          tileEl.addEventListener("click", () => handleTileClick(tile.row, tile.col));
+         } else {
+          tileEl.classList.add("unreachable");
           tileEl.disabled = true;
+         }
+        } else {
+         tileEl.disabled = true;
+
+         // Once puzzle is complete, don't keep the dull unreachable styling
+         if (runtime.completed) {
+          tileEl.classList.remove("unreachable");
+          tileEl.classList.remove("reachable");
+         }
         }
+
 
         if (state.solutionVisible && runtime.optimalPathSet.has(tileKey)) {
           tileEl.style.animationDelay = `${pathIndexByKey[tileKey] * 60}ms`;
