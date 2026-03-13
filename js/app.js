@@ -353,7 +353,9 @@
         tileEl.type = "button";
         tileEl.dataset.row = String(tile.row);
         tileEl.dataset.col = String(tile.col);
-        tileEl.textContent = getTileText(tile, tileKey);
+        const labelSpan = document.createElement("span");
+        labelSpan.textContent = getTileText(tile, tileKey);
+        tileEl.appendChild(labelSpan);
 
         if (!tile.revealed && !runtime.completed) {
           if (reachable) {
