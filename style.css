@@ -351,7 +351,7 @@ button:disabled,
 }
 
 .hex.tile-hidden {
-  color: rgba(255, 255, 255, 0.28);
+  color: rgba(255, 255, 255, 0.34);
 }
 
 .hex.tile-hidden.start-edge,
@@ -410,14 +410,14 @@ button:disabled,
 }
 
 .hex.unreachable {
-  opacity: 0.24;
-  filter: saturate(0.55) brightness(0.9);
+  opacity: 0.62;
+  filter: saturate(0.9) brightness(0.96);
   cursor: not-allowed;
 }
 
 .hex.unreachable.start-edge,
 .hex.unreachable.finish-edge {
-  opacity: 0.42;
+  opacity: 0.82;
 }
 
 /* Solution path: whole hex gets shadowy magenta fill */
