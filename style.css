@@ -273,8 +273,17 @@ button:disabled,
   width: 64px;
   height: 56px;
   padding: 0;
+  margin: 0;
+
+  appearance: none;
+  -webkit-appearance: none;
+
   border: none;
+  border-radius: 0;
   background: transparent;
+  box-shadow: none;
+  outline: none;
+
   color: white;
   font-weight: 800;
   font-size: 0.95rem;
@@ -285,6 +294,14 @@ button:disabled,
   align-items: center;
   justify-content: center;
 }
+
+.hex:focus,
+.hex:focus-visible,
+.hex:active {
+  outline: none;
+  box-shadow: none;
+}
+
 
 /* Outer hex shell */
 .hex::before {
