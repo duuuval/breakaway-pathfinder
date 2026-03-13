@@ -18,19 +18,19 @@
     let attempt = 0;
     let puzzleData = null;
 
-    while (attempt < 200) {
-  puzzleData = generatePuzzle(definition, definition.seed + attempt * 9973);
-  if (validatePuzzle(puzzleData)) {
-    break;
-  }
-  attempt += 1;
-  }
+    while (attempt < 100) {
+      const candidate = generatePuzzle(definition, definition.seed + attempt * 9973);
+      if (validatePuzzle(candidate)) {
+        puzzleData = candidate;
+        break;
+      }
+      puzzleData = candidate;
+      attempt += 1;
+    }
 
-  // If validation never passed, still use last generated board
-  if (!puzzleData) {
-  puzzleData = generatePuzzle(definition, definition.seed);
-  }
-
+    if (!puzzleData) {
+      puzzleData = generatePuzzle(definition, definition.seed);
+    }
 
     return {
       puzzleId: definition.puzzleId,
@@ -73,17 +73,31 @@
     }
 
     const optimalPath = buildGuaranteedPath(board, rng);
-
     const pathKeys = new Set(optimalPath.map((tile) => keyFor(tile.row, tile.col)));
 
     for (let row = 0; row < height; row++) {
       for (let col = 0; col < width; col++) {
         const tile = board[row][col];
-        if (tile.isStart || tile.isFinish) {
+
+        // Start column always safe
+        if (tile.isStart) {
           tile.isDeadlink = false;
           continue;
         }
 
+        // Column 2 always safe
+        if (col === 1) {
+          tile.isDeadlink = false;
+          continue;
+        }
+
+        // Finish column always safe
+        if (tile.isFinish) {
+          tile.isDeadlink = false;
+          continue;
+        }
+
+        // Guaranteed optimal path always safe
         if (pathKeys.has(keyFor(row, col))) {
           tile.isDeadlink = false;
           continue;
@@ -158,10 +172,7 @@
 
   function hasPerfectPath(optimalPath, width) {
     if (!optimalPath || optimalPath.length === 0) return false;
-    return (
-      optimalPath[0].col === 0 &&
-      optimalPath[optimalPath.length - 1].col === width - 1
-    );
+    return optimalPath[0].col === 0 && optimalPath[optimalPath.length - 1].col === width - 1;
   }
 
   function hasReachableFinish(optimalPath, width) {
@@ -169,16 +180,14 @@
   }
 
   function hasGoodEarlyInfo(board) {
-    const width = board[0].length;
-
     for (let row = 0; row < board.length; row++) {
       const startTile = board[row][0];
-      const nearby = collectWithinColumns(board, startTile, Math.min(2, width - 1));
-
-      const useful = nearby.some((tile) => !tile.isDeadlink && tile.neighborCount >= 1 && tile.neighborCount <= 3);
+      const nearby = collectWithinColumns(board, startTile, 2);
+      const useful = nearby.some(
+        (tile) => !tile.isDeadlink && tile.neighborCount >= 1 && tile.neighborCount <= 3
+      );
       if (useful) return true;
     }
-
     return false;
   }
 
@@ -210,20 +219,20 @@
     let fieldTiles = 0;
 
     for (let row = 0; row < board.length; row++) {
-      for (let col = 1; col < board[0].length - 1; col++) {
+      for (let col = 2; col < board[0].length - 1; col++) {
         fieldTiles += 1;
         if (board[row][col].isDeadlink) deadlinks += 1;
       }
     }
 
-    const density = deadlinks / fieldTiles;
-    return density >= 0.18 && density <= 0.25;
+    const density = deadlinks / Math.max(fieldTiles, 1);
+    return density >= 0.12 && density <= 0.28;
   }
 
   function avoidsSolidDeadlinkRows(board) {
     for (let row = 0; row < board.length; row++) {
       let allDeadlinks = true;
-      for (let col = 1; col < board[0].length - 1; col++) {
+      for (let col = 2; col < board[0].length - 1; col++) {
         if (!board[row][col].isDeadlink) {
           allDeadlinks = false;
           break;
@@ -255,23 +264,22 @@
   function getNeighborCoords(board, row, col) {
     const isOddCol = col % 2 === 1;
 
-    // Flat-top hexes, odd columns shifted downward
     const deltas = isOddCol
       ? [
-          [-1, 0],  // up
-          [1, 0],   // down
-          [0, -1],  // upper-left
-          [1, -1],  // lower-left
-          [0, 1],   // upper-right
-          [1, 1]    // lower-right
+          [-1, 0],
+          [1, 0],
+          [0, -1],
+          [1, -1],
+          [0, 1],
+          [1, 1]
         ]
       : [
-          [-1, 0],  // up
-          [1, 0],   // down
-          [-1, -1], // upper-left
-          [0, -1],  // lower-left
-          [-1, 1],  // upper-right
-          [0, 1]    // lower-right
+          [-1, 0],
+          [1, 0],
+          [-1, -1],
+          [0, -1],
+          [-1, 1],
+          [0, 1]
         ];
 
     const coords = [];
@@ -291,7 +299,7 @@
     }
 
     return coords;
-}
+  }
 
   function revealTile(runtime, row, col) {
     if (runtime.completed) return { changed: false, tile: null };
@@ -323,10 +331,7 @@
 
     for (const entry of revealedOrder) {
       const [rowStr, colStr] = entry.split("-");
-      const row = Number(rowStr);
-      const col = Number(colStr);
-
-      revealTile(runtime, row, col);
+      revealTile(runtime, Number(rowStr), Number(colStr));
       if (runtime.completed) break;
     }
 
@@ -335,20 +340,18 @@
 
   function isTileReachable(runtime, row, col) {
     const tile = runtime.board[row][col];
-
-    // Already revealed tiles are not clickable again
     if (tile.revealed) return false;
 
-    // First move: any start tile is allowed
+    // First move: any start tile
     if (runtime.revealedOrder.length === 0) {
       return tile.isStart;
     }
 
-    // After first move: any tile adjacent to any revealed tile is reachable
+    // After first move: any tile adjacent to any revealed tile
     const neighbors = getNeighbors(runtime.board, row, col);
     return neighbors.some((neighbor) => neighbor.revealed);
   }
-  
+
   window.EngineAPI = {
     keyFor,
     createRuntimeFromDefinition,
