@@ -273,6 +273,24 @@ button:disabled,
   width: 64px;
   height: 56px;
   padding: 0;
+  border: none;
+  background: transparent;
+  color: white;
+  font-weight: 800;
+  font-size: 0.95rem;
+  user-select: none;
+  cursor: pointer;
+  transition: transform 0.08s ease, filter 0.12s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Outer hex shell */
+.hex::before {
+  content: "";
+  position: absolute;
+  inset: 0;
   clip-path: polygon(
     25% 0%,
     75% 0%,
@@ -281,18 +299,36 @@ button:disabled,
     25% 100%,
     0% 50%
   );
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--border);
-  background: var(--tile-hidden);
-  color: transparent;
-  font-weight: 800;
-  font-size: 0.95rem;
-  user-select: none;
-  cursor: pointer;
-  transition: transform 0.08s ease, filter 0.12s ease, background 0.12s ease;
+  background: var(--border);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+  z-index: 0;
+}
+
+/* Inner hex fill */
+.hex::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  clip-path: polygon(
+    25% 0%,
+    75% 0%,
+    100% 50%,
+    75% 100%,
+    25% 100%,
+    0% 50%
+  );
+  background: var(--tile-hidden);
+  z-index: 1;
+}
+
+/* Keep text above layers */
+.hex > * {
+  position: relative;
+  z-index: 2;
+}
+
+.hex {
+  z-index: 1;
 }
 
 .hex:hover:not(:disabled) {
@@ -300,18 +336,21 @@ button:disabled,
   filter: brightness(1.08);
 }
 
-.hex.start-edge {
-  border-color: var(--start-outline);
-  border-width: 3px;
+/* Start / finish outer border colors */
+.hex.start-edge::before {
+  background: var(--start-outline);
 }
 
-.hex.finish-edge {
-  border-color: var(--finish-outline);
-  border-width: 3px;
+.hex.finish-edge::before {
+  background: var(--finish-outline);
+}
+
+/* Default hidden fill */
+.hex.tile-hidden::after {
+  background: var(--tile-hidden);
 }
 
 .hex.tile-hidden {
-  background: var(--tile-hidden);
   color: rgba(255, 255, 255, 0.28);
 }
 
@@ -321,30 +360,85 @@ button:disabled,
   font-weight: 900;
 }
 
-.hex.revealed {
+/* Revealed safe tiles */
+.hex.revealed::after {
   background: var(--tile-safe);
+}
+
+.hex.revealed {
   color: #111827;
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.22) inset,
-    0 2px 6px rgba(0, 0, 0, 0.22);
+}
+
+/* Deadlink hit */
+.hex.deadlink-hit::before {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.hex.deadlink-hit::after {
+  background: var(--deadlink);
 }
 
 .hex.deadlink-hit {
-  background: var(--deadlink);
   color: white;
-  border-color: rgba(255, 255, 255, 0.34);
-  box-shadow:
-    0 0 0 2px rgba(234, 136, 71, 0.42),
-    0 0 20px rgba(234, 136, 71, 0.48),
-    0 2px 8px rgba(0, 0, 0, 0.34);
-  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(234, 136, 71, 0.28);
+}
+
+/* Finish tile when revealed */
+.hex.finish-revealed::after {
+  background: var(--tile-safe);
 }
 
 .hex.finish-revealed {
-  background: var(--tile-safe);
   color: #111827;
 }
 
+/* Stronger reachable/unreachable */
+.hex.reachable {
+  opacity: 1;
+  filter: none;
+}
+
+.hex.reachable::before {
+  box-shadow:
+    0 0 0 2px rgba(24, 116, 158, 0.36),
+    0 0 14px rgba(24, 116, 158, 0.16),
+    0 2px 6px rgba(0, 0, 0, 0.28);
+}
+
+.hex.reachable.tile-hidden {
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.hex.unreachable {
+  opacity: 0.24;
+  filter: saturate(0.55) brightness(0.9);
+  cursor: not-allowed;
+}
+
+.hex.unreachable.start-edge,
+.hex.unreachable.finish-edge {
+  opacity: 0.42;
+}
+
+/* Solution path: whole hex gets shadowy magenta fill */
+.hex.solution-path::before {
+  background: rgba(168, 72, 143, 0.88);
+  box-shadow:
+    0 0 0 2px rgba(168, 72, 143, 0.45),
+    0 0 14px rgba(168, 72, 143, 0.24),
+    0 2px 6px rgba(0, 0, 0, 0.28);
+}
+
+.hex.solution-path::after {
+  background: rgba(120, 48, 105, 0.55) !important;
+}
+
+.hex.solution-path {
+  color: #f8f4ff !important;
+  animation: pulsePath 0.45s ease both;
+}
+
+/* Number colors */
 .hex.safe-zero {
   color: #6b7280;
 }
@@ -356,42 +450,17 @@ button:disabled,
 .hex.n5 { color: #c2410c; }
 .hex.n6 { color: #0f766e; }
 
-.hex.reachable {
-  cursor: pointer;
-  opacity: 1;
-  filter: none;
-  box-shadow:
-    0 0 0 2px rgba(24, 116, 158, 0.42),
-    0 0 14px rgba(24, 116, 158, 0.18),
-    0 2px 6px rgba(0, 0, 0, 0.28);
+@keyframes pulsePath {
+  from {
+    transform: scale(0.92);
+    filter: brightness(0.94);
+  }
+  to {
+    transform: scale(1);
+    filter: brightness(1.04);
+  }
 }
 
-.hex.reachable.tile-hidden {
-  color: rgba(255, 255, 255, 0.58);
-}
-
-.hex.unreachable {
-  opacity: 0.22;
-  filter: saturate(0.55) brightness(0.9);
-  cursor: not-allowed;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
-}
-
-.hex.unreachable.start-edge,
-.hex.unreachable.finish-edge {
-  opacity: 0.42;
-}
-
-
-.hex.solution-path {
-  background: rgba(120, 48, 105, 0.5) !important;
-  color: #f8f4ff !important;
-  border-color: rgba(168, 72, 143, 0.9) !important;
-  box-shadow:
-    0 0 0 2px rgba(168, 72, 143, 0.5) inset,
-    0 0 16px rgba(168, 72, 143, 0.3),
-    0 2px 6px rgba(0, 0, 0, 0.28);
-}
 
 
 @keyframes pulsePath {
