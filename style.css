@@ -187,13 +187,21 @@ button:disabled,
 
 .legend-chip {
   display: inline-block;
-  width: 18px;
+  width: 20px;
   height: 18px;
   margin-right: 8px;
-  border-radius: 4px;
   vertical-align: middle;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  clip-path: polygon(
+    25% 0%,
+    75% 0%,
+    100% 50%,
+    75% 100%,
+    25% 100%,
+    0% 50%
+  );
 }
+
 
 .hidden-chip {
   background: var(--tile-hidden);
@@ -300,7 +308,7 @@ button:disabled,
 
 .hex.tile-hidden {
   background: var(--tile-hidden);
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.28);
 }
 
 .hex.tile-hidden.start-edge,
@@ -312,12 +320,19 @@ button:disabled,
 .hex.revealed {
   background: var(--tile-safe);
   color: #111827;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.22) inset,
+    0 2px 6px rgba(0, 0, 0, 0.22);
 }
 
 .hex.deadlink-hit {
   background: var(--deadlink);
   color: white;
-  box-shadow: 0 0 10px rgba(234, 136, 71, 0.55);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow:
+    0 0 0 2px rgba(234, 136, 71, 0.35),
+    0 0 16px rgba(234, 136, 71, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .hex.finish-revealed {
@@ -338,19 +353,30 @@ button:disabled,
 
 .hex.reachable {
   cursor: pointer;
-  box-shadow: 0 0 0 2px rgba(24, 116, 158, 0.22), 0 2px 6px rgba(0, 0, 0, 0.28);
+  opacity: 1;
+  filter: none;
+  box-shadow:
+    0 0 0 2px rgba(24, 116, 158, 0.42),
+    0 0 14px rgba(24, 116, 158, 0.18),
+    0 2px 6px rgba(0, 0, 0, 0.28);
+}
+
+.hex.reachable.tile-hidden {
+  color: rgba(255, 255, 255, 0.58);
 }
 
 .hex.unreachable {
-  opacity: 0.38;
-  filter: saturate(0.75);
+  opacity: 0.22;
+  filter: saturate(0.55) brightness(0.9);
   cursor: not-allowed;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
 }
 
 .hex.unreachable.start-edge,
 .hex.unreachable.finish-edge {
-  opacity: 0.55;
+  opacity: 0.42;
 }
+
 
 .hex.solution-path {
   box-shadow: 0 0 0 3px var(--path-glow) inset;
@@ -416,3 +442,32 @@ button:disabled,
     font-size: 0.9rem;
   }
 }
+
+.hex.revealed,
+.hex.deadlink-hit,
+.hex.finish-revealed {
+  animation: revealPop 0.18s ease-out;
+}
+
+@keyframes revealPop {
+  0% {
+    transform: scale(0.88);
+    filter: brightness(0.9);
+  }
+  70% {
+    transform: scale(1.05);
+    filter: brightness(1.08);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+.hex.finish-edge.tile-hidden {
+  box-shadow:
+    0 0 0 1px rgba(210, 123, 119, 0.18),
+    0 0 10px rgba(210, 123, 119, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.28);
+}
+
